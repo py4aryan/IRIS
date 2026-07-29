@@ -29,19 +29,48 @@ export function CenterStage({
   return (
     <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 relative">
       <div className="relative flex items-center justify-center">
+        {/* ambient glow bloom */}
+        <div className="absolute w-[340px] h-[340px] rounded-full bg-cyan-glow/10 blur-3xl" />
+
         {/* outer pulse rings when listening */}
         {listening && (
           <>
-            <span className="absolute w-64 h-64 rounded-full border border-cyan-glow/25 animate-ping [animation-duration:2s]" />
-            <span className="absolute w-52 h-52 rounded-full border border-cyan-glow/20 animate-ping [animation-duration:2.4s]" />
+            <span className="absolute w-72 h-72 rounded-full border border-cyan-glow/25 animate-ping [animation-duration:2s]" />
+            <span className="absolute w-60 h-60 rounded-full border border-cyan-glow/20 animate-ping [animation-duration:2.4s]" />
           </>
         )}
-        <div className="relative w-56 h-56 rounded-full border border-cyan-glow/15 bg-black/20 flex items-center justify-center">
-          <IrisMark size={168} active />
+
+        {/* outer reticle ring with tick marks */}
+        <svg viewBox="0 0 300 300" className="absolute w-72 h-72 text-cyan-glow/25 animate-spin-slow [animation-duration:40s]">
+          <circle cx="150" cy="150" r="144" fill="none" stroke="currentColor" strokeWidth="1" />
+          {Array.from({ length: 48 }).map((_, i) => {
+            const angle = (i / 48) * 360;
+            const long = i % 6 === 0;
+            return (
+              <line
+                key={i}
+                x1="150"
+                y1={long ? 6 : 12}
+                x2="150"
+                y2={long ? 18 : 20}
+                stroke="currentColor"
+                strokeWidth={long ? 1.5 : 0.75}
+                opacity={long ? 0.8 : 0.4}
+                transform={`rotate(${angle} 150 150)`}
+              />
+            );
+          })}
+        </svg>
+        <svg viewBox="0 0 300 300" className="absolute w-64 h-64 text-cyan-glow/20 animate-spin-reverse [animation-duration:30s]">
+          <circle cx="150" cy="150" r="128" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 14" />
+        </svg>
+
+        <div className="relative w-56 h-56 rounded-full border border-cyan-glow/20 bg-black/30 backdrop-blur-sm flex items-center justify-center shadow-[0_0_50px_-10px_rgba(94,200,255,0.35)]">
+          <IrisMark size={172} active />
         </div>
       </div>
 
-      <h1 className="mt-8 text-3xl tracking-[0.35em] font-semibold text-slate-100">
+      <h1 className="mt-8 text-3xl tracking-[0.35em] font-semibold text-slate-100 [text-shadow:0_0_18px_rgba(94,200,255,0.7),0_0_40px_rgba(94,200,255,0.3)]">
         IRIS
       </h1>
 
