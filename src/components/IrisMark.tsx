@@ -1,7 +1,13 @@
+import { useId } from "react";
+
 interface IrisMarkProps {
   size?: number;
   className?: string;
   active?: boolean;
+  /** 0–1 live microphone level, drives the bubble/wobble distortion */
+  level?: number;
+  /** voice pipeline state, tints the mark */
+  state?: "idle" | "listening" | "awake" | "processing";
 }
 
 const SPARKLES = [
@@ -38,21 +44,56 @@ function Star({ x, y, s }: { x: number; y: number; s: number }) {
  * wrapped in a broken halo ring, with a fractured radial core and drifting
  * sparkle dust — a closer vector recreation of the source logo.
  */
-export function IrisMark({ size = 160, className = "", active = true }: IrisMarkProps) {
+const TINTS: Record<NonNullable<IrisMarkProps["state"]>, string> = {
+  idle: "none",
+  listening: "none",
+  awake: "brightness(1.18) saturate(1.15)",
+  processing: "hue-rotate(-32deg) saturate(1.45) brightness(1.08)",
+};
+
+export function IrisMark({
+  size = 160,
+  className = "",
+  active = true,
+  level = 0,
+  state = "idle",
+}: IrisMarkProps) {
   const shards = Array.from({ length: 24 });
+  const uid = useId();
+  const filterId = `im-bubble-${uid}`;
+  const displaceScale = 2.5 + Math.min(1, level) * 22;
 
   return (
     <div
       className={`relative inline-flex items-center justify-center ${className}`}
-      style={{ width: size, height: size }}
+      style={{ width: size, height: size, filter: TINTS[state], transition: "filter 0.25s ease-out" }}
     >
       <svg
         viewBox="-14 -14 228 228"
         width={size}
         height={size}
-        className="relative z-10 drop-shadow-[0_0_30px_rgba(94,200,255,0.6)]"
+        className="relative z-10"
+        style={{ filter: `url(#${filterId}) drop-shadow(0 0 30px rgba(94,200,255,0.6))` }}
       >
         <defs>
+          <filter id={filterId} x="-40%" y="-40%" width="180%" height="180%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="2" seed="7" result="im-noise">
+              <animate
+                attributeName="baseFrequency"
+                dur="16s"
+                values="0.010 0.015;0.016 0.021;0.010 0.015"
+                repeatCount="indefinite"
+              />
+            </feTurbulence>
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="im-noise"
+              scale={displaceScale}
+              xChannelSelector="R"
+              yChannelSelector="G"
+              style={{ transition: "all 90ms linear" }}
+            />
+          </filter>
           <radialGradient id="im-core" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="#ffffff" />
             <stop offset="30%" stopColor="#bff3ff" />

@@ -14,11 +14,14 @@ function App() {
   const inputRef = useRef<HTMLInputElement>(null);
   const {
     log,
-    listening,
-    processing,
+    voiceState,
+    voiceEnabledOnce,
+    audioLevel,
+    bars,
     supported,
     commandCount,
-    toggleListening,
+    busy,
+    toggleVoice,
     submitCommand,
     clearLog,
   } = useVoiceCommands();
@@ -37,11 +40,13 @@ function App() {
         </aside>
 
         <CenterStage
-          listening={listening}
-          processing={processing}
+          voiceState={voiceState}
+          voiceEnabledOnce={voiceEnabledOnce}
+          audioLevel={audioLevel}
+          bars={bars}
           supported={supported}
           cameraOn={cameraOn}
-          onToggleListening={toggleListening}
+          onToggleVoice={toggleVoice}
           onToggleCamera={() => setCameraOn((v) => !v)}
           onKeyboardClick={() => inputRef.current?.focus()}
         />
@@ -49,7 +54,7 @@ function App() {
         <ConversationPanel
           ref={inputRef}
           log={log}
-          processing={processing}
+          processing={busy}
           onSubmit={submitCommand}
           onClear={clearLog}
         />
