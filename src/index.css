@@ -71,6 +71,10 @@ body {
   0% { transform: translateY(-100%); }
   100% { transform: translateY(100%); }
 }
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
 
 .animate-spin-slow {
   animation: spin-slow 18s linear infinite;
@@ -83,4 +87,7 @@ body {
 }
 .animate-drift {
   animation: drift 6s ease-in-out infinite;
+}
+.animate-breathe {
+  animation: breathe 4.5s ease-in-out infinite;
 }
