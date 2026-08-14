@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
-import { Settings, Thermometer } from "lucide-react";
+import { LogOut, Settings, Thermometer } from "lucide-react";
 import { IrisMark } from "./IrisMark";
 
-export function TopBar() {
+interface TopBarProps {
+  userName?: string;
+  onLogout?: () => void;
+}
+
+export function TopBar({ userName, onLogout }: TopBarProps) {
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -37,6 +42,11 @@ export function TopBar() {
           <Thermometer size={14} className="text-cyan-glow/70" />
           25.2°C <span className="text-slate-500">Quezon City</span>
         </span>
+        {userName && (
+          <span className="hidden lg:inline text-sm text-slate-400">
+            Hi, <span className="text-slate-200">{userName}</span>
+          </span>
+        )}
         <button
           type="button"
           className="w-8 h-8 rounded-full border border-cyan-glow/20 flex items-center justify-center text-slate-400 hover:text-cyan-glow hover:border-cyan-glow/40 transition-colors"
@@ -44,6 +54,16 @@ export function TopBar() {
         >
           <Settings size={15} />
         </button>
+        {onLogout && (
+          <button
+            type="button"
+            onClick={onLogout}
+            className="w-8 h-8 rounded-full border border-cyan-glow/20 flex items-center justify-center text-slate-400 hover:text-red-300 hover:border-red-400/40 transition-colors"
+            aria-label="Log out"
+          >
+            <LogOut size={14} />
+          </button>
+        )}
       </div>
     </header>
   );

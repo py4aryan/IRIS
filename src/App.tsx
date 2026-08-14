@@ -1,65 +1,58 @@
-import { useRef, useState } from "react";
-import { TechyBackground } from "./components/TechyBackground";
-import { TopBar } from "./components/TopBar";
-import { SystemStatsCard } from "./components/SystemStatsCard";
-import { WeatherCard } from "./components/WeatherCard";
-import { CameraCard } from "./components/CameraCard";
-import { UptimeCard } from "./components/UptimeCard";
-import { CenterStage } from "./components/CenterStage";
-import { ConversationPanel } from "./components/ConversationPanel";
-import { useVoiceCommands } from "./hooks/useVoiceCommands";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Home } from "./pages/Home";
+import { Login } from "./pages/Login";
+import { Survey } from "./pages/Survey";
+import { Dashboard } from "./pages/Dashboard";
+import { useSession } from "./hooks/useSession";
 
 function App() {
-  const [cameraOn, setCameraOn] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const {
-    log,
-    voiceState,
-    voiceEnabledOnce,
-    audioLevel,
-    bars,
-    supported,
-    commandCount,
-    busy,
-    toggleVoice,
-    submitCommand,
-    clearLog,
-  } = useVoiceCommands();
+  const { session, login, completeSurvey, logout } = useSession();
 
   return (
-    <div className="h-screen flex flex-col text-slate-100 overflow-hidden">
-      <TechyBackground />
-      <TopBar />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
 
-      <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-y-auto lg:overflow-hidden">
-        <aside className="w-full lg:w-80 shrink-0 border-b lg:border-b-0 lg:border-r border-cyan-glow/10 p-4 space-y-4 lg:overflow-y-auto">
-          <SystemStatsCard />
-          <WeatherCard />
-          <CameraCard on={cameraOn} onToggle={() => setCameraOn((v) => !v)} />
-          <UptimeCard commandCount={commandCount} />
-        </aside>
-
-        <CenterStage
-          voiceState={voiceState}
-          voiceEnabledOnce={voiceEnabledOnce}
-          audioLevel={audioLevel}
-          bars={bars}
-          supported={supported}
-          cameraOn={cameraOn}
-          onToggleVoice={toggleVoice}
-          onToggleCamera={() => setCameraOn((v) => !v)}
-          onKeyboardClick={() => inputRef.current?.focus()}
+        <Route
+          path="/login"
+          element={
+            session.loggedIn ? (
+              <Navigate to={session.surveyComplete ? "/dashboard" : "/survey"} replace />
+            ) : (
+              <Login onLogin={login} />
+            )
+          }
         />
 
-        <ConversationPanel
-          ref={inputRef}
-          log={log}
-          processing={busy}
-          onSubmit={submitCommand}
-          onClear={clearLog}
+        <Route
+          path="/survey"
+          element={
+            !session.loggedIn ? (
+              <Navigate to="/login" replace />
+            ) : session.surveyComplete ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <Survey name={session.name} onComplete={completeSurvey} />
+            )
+          }
         />
-      </div>
-    </div>
+
+        <Route
+          path="/dashboard"
+          element={
+            !session.loggedIn ? (
+              <Navigate to="/login" replace />
+            ) : !session.surveyComplete ? (
+              <Navigate to="/survey" replace />
+            ) : (
+              <Dashboard session={session} onLogout={logout} />
+            )
+          }
+        />
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
