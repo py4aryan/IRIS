@@ -1,29 +1,27 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { TechyBackground } from "../components/TechyBackground";
 import { IrisMark } from "../components/IrisMark";
 
+type AuthResult = { ok: true } | { ok: false; error: string };
+
 interface LoginProps {
-  onLogin: (name: string, email: string) => void;
+  onSignup: (name: string, email: string, password: string) => Promise<AuthResult>;
+  onSignIn: (email: string, password: string) => Promise<AuthResult>;
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function nameFromEmail(email: string) {
-  const local = email.split("@")[0] ?? "";
-  const cleaned = local.replace(/[._-]+/g, " ").trim();
-  return cleaned.replace(/\b\w/g, (c) => c.toUpperCase()) || "there";
-}
-
-export function Login({ onLogin }: LoginProps) {
+export function Login({ onSignup, onSignIn }: LoginProps) {
   const [mode, setMode] = useState<"signin" | "signup">("signup");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!EMAIL_RE.test(email)) {
       setError("Enter a valid email address.");
@@ -37,9 +35,14 @@ export function Login({ onLogin }: LoginProps) {
       setError("Tell us what to call you.");
       return;
     }
+
     setError(null);
-    // No backend — this is a client-side mock. The password is never stored.
-    onLogin(mode === "signup" ? name.trim() : nameFromEmail(email), email);
+    setSubmitting(true);
+    const result =
+      mode === "signup" ? await onSignup(name.trim(), email, password) : await onSignIn(email, password);
+    setSubmitting(false);
+
+    if (!result.ok) setError(result.error);
   }
 
   return (
@@ -119,17 +122,24 @@ export function Login({ onLogin }: LoginProps) {
 
           <button
             type="submit"
-            className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-cyan-glow text-iris-950 font-medium px-4 py-2.5 hover:brightness-110 transition"
+            disabled={submitting}
+            className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-cyan-glow text-iris-950 font-medium px-4 py-2.5 hover:brightness-110 transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {mode === "signup" ? "Create Account" : "Sign In"}
-            <ArrowRight size={15} />
+            {submitting ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : (
+              <>
+                {mode === "signup" ? "Create Account" : "Sign In"}
+                <ArrowRight size={15} />
+              </>
+            )}
           </button>
         </form>
       </div>
 
       <p className="mt-6 text-xs text-slate-600 max-w-sm text-center">
-        Demo only — there's no backend here. Nothing you enter is sent anywhere or
-        stored beyond your own browser.
+        Backed by a small local server — your password is hashed and never
+        leaves this machine. No third-party auth provider involved.
       </p>
     </div>
   );

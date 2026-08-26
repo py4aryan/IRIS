@@ -1,6 +1,5 @@
-import { useCallback, useState } from "react";
-
-const STORAGE_KEY = "iris-session";
+import { useCallback, useEffect, useState } from "react";
+import { api, ApiError, type ApiUser } from "../lib/api";
 
 export interface SessionData {
   loggedIn: boolean;
@@ -18,55 +17,71 @@ const DEFAULT_SESSION: SessionData = {
   useCase: "",
 };
 
-function readSession(): SessionData {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_SESSION;
-    return { ...DEFAULT_SESSION, ...JSON.parse(raw) };
-  } catch {
-    return DEFAULT_SESSION;
-  }
-}
-
-function writeSession(data: SessionData) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+function fromApiUser(u: ApiUser): SessionData {
+  return {
+    loggedIn: true,
+    name: u.name,
+    email: u.email,
+    surveyComplete: u.surveyComplete,
+    useCase: u.useCase ?? "",
+  };
 }
 
 /**
- * Frontend-only "session" — there is no backend, so login is a client-side
- * mock that never persists a password, and onboarding state just lives in
- * localStorage. Good enough to gate the dashboard behind a login + survey
- * flow without pretending to be real auth.
+ * Talks to the real IRIS backend (server/) for auth. There's no third-party
+ * auth provider — just a local Express server, bcrypt-hashed passwords, and
+ * a JWT in an httpOnly cookie. This hook holds the client-side mirror of
+ * that session.
  */
 export function useSession() {
-  const [session, setSession] = useState<SessionData>(() => readSession());
+  const [session, setSession] = useState<SessionData>(DEFAULT_SESSION);
+  const [loading, setLoading] = useState(true);
 
-  const update = useCallback((patch: Partial<SessionData>) => {
-    setSession((prev) => {
-      const next = { ...prev, ...patch };
-      writeSession(next);
-      return next;
-    });
+  useEffect(() => {
+    api
+      .me()
+      .then((u) => setSession(fromApiUser(u)))
+      .catch(() => setSession(DEFAULT_SESSION))
+      .finally(() => setLoading(false));
   }, []);
 
-  const login = useCallback(
-    (name: string, email: string) => {
-      update({ loggedIn: true, name, email });
-    },
-    [update]
-  );
-
-  const completeSurvey = useCallback(
-    (useCase: string, name?: string) => {
-      update({ surveyComplete: true, useCase, ...(name ? { name } : {}) });
-    },
-    [update]
-  );
-
-  const logout = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
-    setSession(DEFAULT_SESSION);
+  const signup = useCallback(async (name: string, email: string, password: string) => {
+    try {
+      const user = await api.signup(name, email, password);
+      setSession(fromApiUser(user));
+      return { ok: true as const };
+    } catch (e) {
+      return { ok: false as const, error: e instanceof ApiError ? e.message : "Something went wrong." };
+    }
   }, []);
 
-  return { session, login, completeSurvey, logout };
+  const signIn = useCallback(async (email: string, password: string) => {
+    try {
+      const user = await api.login(email, password);
+      setSession(fromApiUser(user));
+      return { ok: true as const };
+    } catch (e) {
+      return { ok: false as const, error: e instanceof ApiError ? e.message : "Something went wrong." };
+    }
+  }, []);
+
+  const completeSurvey = useCallback(async (useCase: string, name: string) => {
+    try {
+      const user = await api.completeSurvey(useCase, name);
+      setSession(fromApiUser(user));
+      return { ok: true as const };
+    } catch (e) {
+      return { ok: false as const, error: e instanceof ApiError ? e.message : "Something went wrong." };
+    }
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      await api.logout();
+    } finally {
+      setSession(DEFAULT_SESSION);
+    }
+  }, []);
+
+  return { session, loading, signup, signIn, completeSurvey, logout };
 }

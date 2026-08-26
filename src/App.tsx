@@ -3,10 +3,22 @@ import { Home } from "./pages/Home";
 import { Login } from "./pages/Login";
 import { Survey } from "./pages/Survey";
 import { Dashboard } from "./pages/Dashboard";
+import { IrisMark } from "./components/IrisMark";
+import { TechyBackground } from "./components/TechyBackground";
 import { useSession } from "./hooks/useSession";
 
 function App() {
-  const { session, login, completeSurvey, logout } = useSession();
+  const { session, loading, signup, signIn, completeSurvey, logout } = useSession();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-slate-400 relative">
+        <TechyBackground />
+        <IrisMark size={72} />
+        <p className="text-xs tracking-widest">CONNECTING…</p>
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>
@@ -19,7 +31,7 @@ function App() {
             session.loggedIn ? (
               <Navigate to={session.surveyComplete ? "/dashboard" : "/survey"} replace />
             ) : (
-              <Login onLogin={login} />
+              <Login onSignup={signup} onSignIn={signIn} />
             )
           }
         />

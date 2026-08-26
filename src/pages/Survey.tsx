@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, Code2, Home as HomeIcon, Rocket, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Code2, Home as HomeIcon, Loader2, Rocket, Sparkles } from "lucide-react";
 import { TechyBackground } from "../components/TechyBackground";
 import { IrisMark } from "../components/IrisMark";
 
 interface SurveyProps {
   name: string;
-  onComplete: (useCase: string, name: string) => void;
+  onComplete: (useCase: string, name: string) => Promise<{ ok: true } | { ok: false; error: string }>;
 }
 
 const USE_CASES = [
@@ -21,6 +21,16 @@ export function Survey({ name: initialName, onComplete }: SurveyProps) {
   const [step, setStep] = useState(0);
   const [name, setName] = useState(initialName);
   const [useCase, setUseCase] = useState("");
+  const [launching, setLaunching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function launch() {
+    setError(null);
+    setLaunching(true);
+    const result = await onComplete(useCase, name);
+    setLaunching(false);
+    if (!result.ok) setError(result.error);
+  }
 
   const useCaseLabel = USE_CASES.find((u) => u.id === useCase)?.label ?? "general use";
 
@@ -117,13 +127,21 @@ export function Survey({ name: initialName, onComplete }: SurveyProps) {
               IRIS is calibrated for <span className="text-cyan-glow">{useCaseLabel}</span>. Say
               "Hey IRIS" any time you're ready.
             </p>
+            {error && <p className="text-xs text-red-300 mb-3">{error}</p>}
             <button
               type="button"
-              onClick={() => onComplete(useCase, name)}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-cyan-glow text-iris-950 font-medium px-4 py-2.5 hover:brightness-110 transition"
+              disabled={launching}
+              onClick={launch}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-cyan-glow text-iris-950 font-medium px-4 py-2.5 hover:brightness-110 transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Launch IRIS
-              <ArrowRight size={15} />
+              {launching ? (
+                <Loader2 size={15} className="animate-spin" />
+              ) : (
+                <>
+                  Launch IRIS
+                  <ArrowRight size={15} />
+                </>
+              )}
             </button>
           </div>
         )}
