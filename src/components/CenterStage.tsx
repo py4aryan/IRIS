@@ -1,6 +1,7 @@
 import { Camera, Keyboard, Mic, MicOff } from "lucide-react";
 import { IrisMark } from "./IrisMark";
 import { ChannelBars } from "./ChannelBars";
+import { EyeReticle } from "./EyeReticle";
 import type { VoiceState } from "../hooks/useVoiceCommands";
 
 interface CenterStageProps {
@@ -9,11 +10,19 @@ interface CenterStageProps {
   voiceEnabledOnce: boolean;
   audioLevel: number;
   bars: number[];
+  commandCount: number;
   cameraOn: boolean;
   onToggleVoice: () => void;
   onToggleCamera: () => void;
   onKeyboardClick: () => void;
 }
+
+const STATE_CODES: Record<VoiceState, string> = {
+  disabled: "OFF",
+  listening: "RDY",
+  awake: "ACT",
+  processing: "PROC",
+};
 
 export function CenterStage({
   voiceState,
@@ -21,6 +30,7 @@ export function CenterStage({
   voiceEnabledOnce,
   audioLevel,
   bars,
+  commandCount,
   cameraOn,
   onToggleVoice,
   onToggleCamera,
@@ -71,32 +81,17 @@ export function CenterStage({
           </>
         )}
 
-        {/* outer reticle ring with tick marks */}
-        <svg viewBox="0 0 300 300" className="absolute w-72 h-72 text-cyan-glow/25 animate-spin-slow [animation-duration:40s]">
-          <circle cx="150" cy="150" r="144" fill="none" stroke="currentColor" strokeWidth="1" />
-          {Array.from({ length: 48 }).map((_, i) => {
-            const angle = (i / 48) * 360;
-            const long = i % 6 === 0;
-            return (
-              <line
-                key={i}
-                x1="150"
-                y1={long ? 6 : 12}
-                x2="150"
-                y2={long ? 18 : 20}
-                stroke="currentColor"
-                strokeWidth={long ? 1.5 : 0.75}
-                opacity={long ? 0.8 : 0.4}
-                transform={`rotate(${angle} 150 150)`}
-              />
-            );
-          })}
-        </svg>
-        <svg viewBox="0 0 300 300" className="absolute w-64 h-64 text-cyan-glow/20 animate-spin-reverse [animation-duration:30s]">
-          <circle cx="150" cy="150" r="128" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 14" />
-        </svg>
+        <EyeReticle audioLevel={audioLevel} stateCode={STATE_CODES[voiceState]} commandCount={commandCount} />
 
-        <div className="relative w-56 h-56 rounded-full border border-cyan-glow/20 bg-black/30 backdrop-blur-sm flex items-center justify-center shadow-[0_0_50px_-10px_rgba(94,200,255,0.35)]">
+        {/* beveled hardware-style bezel frame around the eye */}
+        <div
+          className="relative w-56 h-56 rounded-full flex items-center justify-center"
+          style={{
+            background: "radial-gradient(circle at 50% 38%, rgba(22,46,64,0.6), rgba(2,5,10,0.92))",
+            boxShadow:
+              "inset 0 2px 6px rgba(255,255,255,0.08), inset 0 -6px 14px rgba(0,0,0,0.65), 0 0 0 1px rgba(94,200,255,0.18), 0 0 44px -8px rgba(94,200,255,0.4)",
+          }}
+        >
           <IrisMark
             size={172}
             active
@@ -154,6 +149,10 @@ export function CenterStage({
           <Keyboard size={18} />
         </button>
       </div>
+
+      <p className="mt-6 text-[10px] tracking-[0.2em] text-slate-600 font-mono">
+        ◈ SESSION LOG · {commandCount} COMMAND{commandCount === 1 ? "" : "S"} PROCESSED
+      </p>
     </div>
   );
 }

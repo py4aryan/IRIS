@@ -39,8 +39,47 @@ function getRecognitionCtor(): (new () => SpeechRecognitionLike) | null {
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 }
 
-const WAKE_RE = /\bhey,?\s*iris\b/i;
 const BAR_COUNT = 10;
+
+// Speech recognition can mis-transcribe "Iris" with accents or background
+// noise ("eris", "irish", "iras", ...) — match near-misses instead of
+// requiring an exact "hey iris" string.
+const WAKE_ALIASES = ["iris", "eris", "irish", "iras", "irus", "erys", "irish's"];
+
+function levenshtein(a: string, b: string): number {
+  const dp: number[][] = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
+  for (let i = 0; i <= a.length; i++) dp[i][0] = i;
+  for (let j = 0; j <= b.length; j++) dp[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      dp[i][j] =
+        a[i - 1] === b[j - 1]
+          ? dp[i - 1][j - 1]
+          : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+    }
+  }
+  return dp[a.length][b.length];
+}
+
+/** Scans the first few words of a transcript for something close to "iris". */
+function findWakeWord(transcript: string): { wordIndex: number; words: string[] } | null {
+  const words = transcript
+    .toLowerCase()
+    .replace(/[^a-z\s']/g, "")
+    .split(/\s+/)
+    .filter(Boolean);
+
+  const scanLimit = Math.min(words.length, 5);
+  for (let i = 0; i < scanLimit; i++) {
+    const word = words[i];
+    if (word.length < 3) continue;
+    const threshold = word.length <= 4 ? 1 : 2;
+    if (WAKE_ALIASES.some((alias) => levenshtein(word, alias) <= threshold)) {
+      return { wordIndex: i, words };
+    }
+  }
+  return null;
+}
 
 function timeNow() {
   return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -134,18 +173,17 @@ export function useVoiceCommands() {
         if (voiceStateRef.current === "awake") {
           if (isFinal && transcript.trim()) {
             if (awakeTimeoutRef.current) window.clearTimeout(awakeTimeoutRef.current);
-            const command = transcript.replace(WAKE_RE, "").trim() || transcript.trim();
-            submitCommand(command);
+            submitCommand(transcript.trim());
           }
           continue;
         }
 
         if (voiceStateRef.current !== "listening") continue;
 
-        const wakeMatch = transcript.match(WAKE_RE);
-        if (!wakeMatch) continue;
+        const wake = findWakeWord(transcript);
+        if (!wake) continue;
 
-        const after = transcript.slice((wakeMatch.index ?? 0) + wakeMatch[0].length).trim();
+        const after = wake.words.slice(wake.wordIndex + 1).join(" ").trim();
         if (after && isFinal) {
           submitCommand(after);
         } else {

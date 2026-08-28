@@ -50,6 +50,7 @@ export function Dashboard({ session, onLogout }: DashboardProps) {
           voiceEnabledOnce={voiceEnabledOnce}
           audioLevel={audioLevel}
           bars={bars}
+          commandCount={commandCount}
           supported={supported}
           cameraOn={cameraOn}
           onToggleVoice={toggleVoice}
