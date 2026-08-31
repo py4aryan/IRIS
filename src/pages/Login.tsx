@@ -54,12 +54,12 @@ export function Login({ onSignup, onSignIn }: LoginProps) {
         <span className="text-lg font-display font-semibold tracking-[0.3em] text-slate-100">IRIS</span>
       </Link>
 
-      <div className="w-full max-w-sm rounded-xl border border-cyan-glow/15 bg-iris-800/50 backdrop-blur-sm p-6">
-        <div className="flex rounded-md border border-cyan-glow/15 p-1 mb-6 text-sm">
+      <div className="w-full max-w-sm rounded-3xl bg-iris-800/60 backdrop-blur-md p-6 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.75)]">
+        <div className="flex rounded-full bg-black/20 p-1 mb-6 text-sm">
           <button
             type="button"
             onClick={() => setMode("signin")}
-            className={`flex-1 rounded py-1.5 transition-colors ${
+            className={`flex-1 rounded-full py-1.5 transition-colors ${
               mode === "signin" ? "bg-cyan-glow/15 text-cyan-glow" : "text-slate-400 hover:text-slate-200"
             }`}
           >
@@ -68,7 +68,7 @@ export function Login({ onSignup, onSignIn }: LoginProps) {
           <button
             type="button"
             onClick={() => setMode("signup")}
-            className={`flex-1 rounded py-1.5 transition-colors ${
+            className={`flex-1 rounded-full py-1.5 transition-colors ${
               mode === "signup" ? "bg-cyan-glow/15 text-cyan-glow" : "text-slate-400 hover:text-slate-200"
             }`}
           >
@@ -87,7 +87,7 @@ export function Login({ onSignup, onSignIn }: LoginProps) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Tony Stark"
-                className="w-full bg-black/25 border border-cyan-glow/10 rounded-md px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:border-cyan-glow/40"
+                className="w-full bg-black/25 rounded-2xl px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-cyan-glow/40"
               />
             </div>
           )}
@@ -101,7 +101,7 @@ export function Login({ onSignup, onSignIn }: LoginProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full bg-black/25 border border-cyan-glow/10 rounded-md px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:border-cyan-glow/40"
+              className="w-full bg-black/25 rounded-2xl px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-cyan-glow/40"
             />
           </div>
           <div>
@@ -114,7 +114,7 @@ export function Login({ onSignup, onSignIn }: LoginProps) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full bg-black/25 border border-cyan-glow/10 rounded-md px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:border-cyan-glow/40"
+              className="w-full bg-black/25 rounded-2xl px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-cyan-glow/40"
             />
           </div>
 
@@ -123,7 +123,7 @@ export function Login({ onSignup, onSignIn }: LoginProps) {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-cyan-glow text-iris-950 font-medium px-4 py-2.5 hover:brightness-110 transition disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-cyan-glow text-iris-950 font-medium px-4 py-2.5 hover:brightness-110 transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {submitting ? (
               <Loader2 size={15} className="animate-spin" />

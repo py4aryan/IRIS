@@ -14,14 +14,14 @@ export function Home() {
     <div className="min-h-screen flex flex-col text-slate-100 relative overflow-hidden">
       <TechyBackground />
 
-      <header className="flex items-center justify-between px-6 py-5 border-b border-cyan-glow/10">
+      <header className="flex items-center justify-between px-6 md:px-10 py-5">
         <div className="flex items-center gap-2.5">
           <IrisMark size={28} />
           <span className="text-base font-display font-semibold tracking-[0.3em] text-slate-100">IRIS</span>
         </div>
         <Link
           to="/login"
-          className="text-sm text-slate-300 hover:text-cyan-glow transition-colors border border-cyan-glow/20 rounded-md px-4 py-1.5"
+          className="text-sm text-slate-300 hover:text-cyan-glow transition-colors bg-black/20 rounded-full px-4 py-1.5"
         >
           Sign In
         </Link>
@@ -40,7 +40,7 @@ export function Home() {
 
         <Link
           to="/login"
-          className="mt-9 inline-flex items-center gap-2 rounded-md bg-cyan-glow text-iris-950 font-medium px-6 py-3 hover:brightness-110 transition"
+          className="mt-9 inline-flex items-center gap-2 rounded-full bg-cyan-glow text-iris-950 font-medium px-6 py-3 hover:brightness-110 transition"
         >
           Get Started
           <ArrowRight size={16} />

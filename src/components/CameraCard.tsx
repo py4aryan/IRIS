@@ -42,7 +42,7 @@ export function CameraCard({ on, onToggle }: CameraCardProps) {
 
   return (
     <Card icon={<Camera size={15} />} title="Camera">
-      <div className="relative aspect-video rounded-lg bg-black/40 border border-cyan-glow/10 flex items-center justify-center overflow-hidden mb-2">
+      <div className="relative aspect-video rounded-2xl bg-black/40 flex items-center justify-center overflow-hidden mb-2">
         {on ? (
           <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
         ) : (
@@ -59,10 +59,8 @@ export function CameraCard({ on, onToggle }: CameraCardProps) {
         <button
           type="button"
           onClick={onToggle}
-          className={`w-7 h-7 shrink-0 rounded-full border flex items-center justify-center transition-colors ${
-            on
-              ? "border-emerald-400/40 text-emerald-300 bg-emerald-400/10"
-              : "border-cyan-glow/20 text-slate-400 hover:text-cyan-glow"
+          className={`w-7 h-7 shrink-0 rounded-full flex items-center justify-center transition-colors ${
+            on ? "text-emerald-300 bg-emerald-400/15" : "bg-black/20 text-slate-400 hover:text-cyan-glow"
           }`}
           aria-label="Toggle camera"
         >

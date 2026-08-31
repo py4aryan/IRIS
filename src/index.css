@@ -93,11 +93,3 @@ body {
 .animate-breathe {
   animation: breathe 4.5s ease-in-out infinite;
 }
-
-/* Angular cut-corner panel — the shape signature for this UI's card language */
-.panel-cut {
-  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
-}
-.panel-cut-sm {
-  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
-}

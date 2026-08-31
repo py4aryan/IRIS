@@ -33,41 +33,43 @@ export function Dashboard({ session, onLogout }: DashboardProps) {
   } = useVoiceCommands();
 
   return (
-    <div className="h-screen flex flex-col text-slate-100 overflow-hidden">
+    <div className="min-h-screen text-slate-100 relative">
       <TechyBackground />
-      <TopBar userName={session.name} onLogout={onLogout} />
+      <TopBar onLogout={onLogout} />
 
-      <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-y-auto lg:overflow-hidden">
-        <aside className="w-full lg:w-80 shrink-0 border-b lg:border-b-0 lg:border-r border-cyan-glow/10 p-4 space-y-4 lg:overflow-y-auto">
-          <SystemStatsCard />
-          <WeatherCard />
-          <div className="grid grid-cols-2 gap-4">
+      <CenterStage
+        voiceState={voiceState}
+        voiceEnabledOnce={voiceEnabledOnce}
+        audioLevel={audioLevel}
+        bars={bars}
+        commandCount={commandCount}
+        supported={supported}
+        cameraOn={cameraOn}
+        userName={session.name}
+        onToggleVoice={toggleVoice}
+        onToggleCamera={() => setCameraOn((v) => !v)}
+        onKeyboardClick={() => inputRef.current?.focus()}
+      />
+
+      <main className="px-6 md:px-10 pb-14 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+          <div className="md:col-span-3">
+            <SystemStatsCard />
+          </div>
+          <div className="md:col-span-3">
+            <WeatherCard />
+          </div>
+          <div className="md:col-span-3">
             <CameraCard on={cameraOn} onToggle={() => setCameraOn((v) => !v)} />
+          </div>
+          <div className="md:col-span-3">
             <UptimeCard commandCount={commandCount} />
           </div>
-        </aside>
-
-        <CenterStage
-          voiceState={voiceState}
-          voiceEnabledOnce={voiceEnabledOnce}
-          audioLevel={audioLevel}
-          bars={bars}
-          commandCount={commandCount}
-          supported={supported}
-          cameraOn={cameraOn}
-          onToggleVoice={toggleVoice}
-          onToggleCamera={() => setCameraOn((v) => !v)}
-          onKeyboardClick={() => inputRef.current?.focus()}
-        />
-
-        <ConversationPanel
-          ref={inputRef}
-          log={log}
-          processing={busy}
-          onSubmit={submitCommand}
-          onClear={clearLog}
-        />
-      </div>
+          <div className="md:col-span-6">
+            <ConversationPanel ref={inputRef} log={log} processing={busy} onSubmit={submitCommand} onClear={clearLog} />
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

@@ -51,7 +51,7 @@ export function Survey({ name: initialName, onComplete }: SurveyProps) {
         ))}
       </div>
 
-      <div className="w-full max-w-md rounded-xl border border-cyan-glow/15 bg-iris-800/50 backdrop-blur-sm p-7">
+      <div className="w-full max-w-md rounded-3xl bg-iris-800/60 backdrop-blur-md p-7 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.75)]">
         {step === 0 && (
           <div>
             <h2 className="text-lg font-medium text-slate-100 mb-1.5">What should we call you?</h2>
@@ -62,13 +62,13 @@ export function Survey({ name: initialName, onComplete }: SurveyProps) {
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && name.trim() && setStep(1)}
               placeholder="Your name"
-              className="w-full bg-black/25 border border-cyan-glow/10 rounded-md px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:border-cyan-glow/40"
+              className="w-full bg-black/25 rounded-2xl px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-cyan-glow/40"
             />
             <button
               type="button"
               disabled={!name.trim()}
               onClick={() => setStep(1)}
-              className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-md bg-cyan-glow text-iris-950 font-medium px-4 py-2.5 hover:brightness-110 transition disabled:opacity-40 disabled:cursor-not-allowed"
+              className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-full bg-cyan-glow text-iris-950 font-medium px-4 py-2.5 hover:brightness-110 transition disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Continue
               <ArrowRight size={15} />
@@ -88,10 +88,10 @@ export function Survey({ name: initialName, onComplete }: SurveyProps) {
                   key={id}
                   type="button"
                   onClick={() => setUseCase(id)}
-                  className={`flex flex-col items-start gap-2 rounded-lg border p-3.5 text-left transition-colors ${
+                  className={`flex flex-col items-start gap-2 rounded-2xl p-3.5 text-left transition-colors ${
                     useCase === id
-                      ? "border-cyan-glow/50 bg-cyan-glow/10 text-slate-100"
-                      : "border-cyan-glow/10 text-slate-400 hover:border-cyan-glow/30 hover:text-slate-200"
+                      ? "bg-cyan-glow/15 text-slate-100"
+                      : "bg-black/20 text-slate-400 hover:bg-black/30 hover:text-slate-200"
                   }`}
                 >
                   <Icon size={18} className={useCase === id ? "text-cyan-glow" : ""} />
@@ -111,7 +111,7 @@ export function Survey({ name: initialName, onComplete }: SurveyProps) {
                 type="button"
                 disabled={!useCase}
                 onClick={() => setStep(2)}
-                className="flex-1 inline-flex items-center justify-center gap-2 rounded-md bg-cyan-glow text-iris-950 font-medium px-4 py-2.5 hover:brightness-110 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-cyan-glow text-iris-950 font-medium px-4 py-2.5 hover:brightness-110 transition disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Continue
                 <ArrowRight size={15} />
@@ -132,7 +132,7 @@ export function Survey({ name: initialName, onComplete }: SurveyProps) {
               type="button"
               disabled={launching}
               onClick={launch}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-cyan-glow text-iris-950 font-medium px-4 py-2.5 hover:brightness-110 transition disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-cyan-glow text-iris-950 font-medium px-4 py-2.5 hover:brightness-110 transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {launching ? (
                 <Loader2 size={15} className="animate-spin" />
