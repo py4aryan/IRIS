@@ -22,7 +22,7 @@ export function TopBar({ userName, onLogout }: TopBarProps) {
     <header className="flex items-center justify-between px-6 py-3 border-b border-cyan-glow/10 bg-black/20 backdrop-blur-sm">
       <div className="flex items-center gap-3">
         <IrisMark size={30} />
-        <span className="text-lg font-semibold tracking-[0.3em] text-slate-100">
+        <span className="text-lg font-display font-semibold tracking-[0.3em] text-slate-100">
           IRIS
         </span>
         <span className="hidden sm:flex items-center gap-1.5 text-[11px] text-emerald-300/90 border border-emerald-400/25 bg-emerald-400/5 rounded-full px-2.5 py-1 ml-2">
@@ -31,7 +31,7 @@ export function TopBar({ userName, onLogout }: TopBarProps) {
         </span>
       </div>
 
-      <div className="hidden md:flex items-center gap-2 text-slate-300 text-sm tabular-nums">
+      <div className="hidden md:flex items-center gap-2 text-slate-300 text-sm tabular-nums font-display">
         <span className="text-cyan-glow/80">{time}</span>
         <span className="text-slate-500">|</span>
         <span className="text-slate-400">{date}</span>
@@ -39,8 +39,8 @@ export function TopBar({ userName, onLogout }: TopBarProps) {
 
       <div className="flex items-center gap-3">
         <span className="hidden sm:flex items-center gap-1.5 text-sm text-slate-300">
-          <Thermometer size={14} className="text-cyan-glow/70" />
-          25.2°C <span className="text-slate-500">Quezon City</span>
+          <Thermometer size={14} className="text-amber-glow/80" />
+          <span className="font-display">25.2°C</span> <span className="text-slate-500">Quezon City</span>
         </span>
         {userName && (
           <span className="hidden lg:inline text-sm text-slate-400">

@@ -41,8 +41,10 @@ export function Dashboard({ session, onLogout }: DashboardProps) {
         <aside className="w-full lg:w-80 shrink-0 border-b lg:border-b-0 lg:border-r border-cyan-glow/10 p-4 space-y-4 lg:overflow-y-auto">
           <SystemStatsCard />
           <WeatherCard />
-          <CameraCard on={cameraOn} onToggle={() => setCameraOn((v) => !v)} />
-          <UptimeCard commandCount={commandCount} />
+          <div className="grid grid-cols-2 gap-4">
+            <CameraCard on={cameraOn} onToggle={() => setCameraOn((v) => !v)} />
+            <UptimeCard commandCount={commandCount} />
+          </div>
         </aside>
 
         <CenterStage

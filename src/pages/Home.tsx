@@ -17,7 +17,7 @@ export function Home() {
       <header className="flex items-center justify-between px-6 py-5 border-b border-cyan-glow/10">
         <div className="flex items-center gap-2.5">
           <IrisMark size={28} />
-          <span className="text-base font-semibold tracking-[0.3em] text-slate-100">IRIS</span>
+          <span className="text-base font-display font-semibold tracking-[0.3em] text-slate-100">IRIS</span>
         </div>
         <Link
           to="/login"
@@ -30,7 +30,7 @@ export function Home() {
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center">
         <IrisMark size={140} />
 
-        <h1 className="mt-8 text-4xl sm:text-5xl font-semibold tracking-tight [text-shadow:0_0_18px_rgba(94,200,255,0.6)]">
+        <h1 className="mt-8 text-4xl sm:text-5xl font-display font-semibold tracking-tight [text-shadow:0_0_18px_rgba(94,200,255,0.6)]">
           Meet <span className="text-cyan-glow">IRIS</span>
         </h1>
         <p className="mt-4 max-w-md text-slate-400">

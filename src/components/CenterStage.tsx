@@ -101,7 +101,7 @@ export function CenterStage({
         </div>
       </div>
 
-      <h1 className="mt-8 text-3xl tracking-[0.35em] font-semibold text-slate-100 [text-shadow:0_0_18px_rgba(94,200,255,0.7),0_0_40px_rgba(94,200,255,0.3)]">
+      <h1 className="mt-8 text-3xl tracking-[0.35em] font-display font-semibold text-slate-100 [text-shadow:0_0_18px_rgba(94,200,255,0.7),0_0_40px_rgba(94,200,255,0.3)]">
         IRIS
       </h1>
 

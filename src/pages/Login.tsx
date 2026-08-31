@@ -51,7 +51,7 @@ export function Login({ onSignup, onSignIn }: LoginProps) {
 
       <Link to="/" className="mb-8 flex items-center gap-2.5">
         <IrisMark size={34} />
-        <span className="text-lg font-semibold tracking-[0.3em] text-slate-100">IRIS</span>
+        <span className="text-lg font-display font-semibold tracking-[0.3em] text-slate-100">IRIS</span>
       </Link>
 
       <div className="w-full max-w-sm rounded-xl border border-cyan-glow/15 bg-iris-800/50 backdrop-blur-sm p-6">

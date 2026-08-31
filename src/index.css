@@ -7,8 +7,10 @@
   --color-iris-700: #101c30;
   --color-cyan-glow: #7fe7ff;
   --color-blue-glow: #5ec8ff;
-  --font-display: "Orbitron", "Rajdhani", system-ui, sans-serif;
-  --font-mono-hud: "JetBrains Mono", ui-monospace, monospace;
+  --color-amber-glow: #ffb454;
+  --color-amber-dim: #c98a3c;
+  --font-display: "Chakra Petch", "Rajdhani", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
 :root {
@@ -90,4 +92,12 @@ body {
 }
 .animate-breathe {
   animation: breathe 4.5s ease-in-out infinite;
+}
+
+/* Angular cut-corner panel — the shape signature for this UI's card language */
+.panel-cut {
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+}
+.panel-cut-sm {
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
 }
