@@ -7,7 +7,7 @@ export type LogEntry = {
   time: string;
 };
 
-export type VoiceState = "disabled" | "listening" | "awake" | "processing";
+export type VoiceState = "disabled" | "listening" | "awake" | "processing" | "speaking";
 
 interface SpeechRecognitionResultLike {
   isFinal: boolean;
@@ -85,6 +85,16 @@ function timeNow() {
   return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
+function pickVoice(): SpeechSynthesisVoice | undefined {
+  if (!window.speechSynthesis) return undefined;
+  const voices = window.speechSynthesis.getVoices();
+  return (
+    voices.find((v) => /Google UK English Male|Daniel|Alex|Google US English/i.test(v.name)) ??
+    voices.find((v) => v.lang?.startsWith("en")) ??
+    voices[0]
+  );
+}
+
 function respond(command: string): string {
   const c = command.toLowerCase();
   if (c.includes("time")) return `It's ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.`;
@@ -118,6 +128,7 @@ export function useVoiceCommands() {
 
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const shouldListenRef = useRef(false);
+  const speakingRef = useRef(false);
   const voiceStateRef = useRef<VoiceState>("disabled");
   const awakeTimeoutRef = useRef<number | null>(null);
   const idRef = useRef(1);
@@ -138,6 +149,37 @@ export function useVoiceCommands() {
     setLog((prev) => [...prev, { id: idRef.current++, role, text, time: timeNow() }]);
   }, []);
 
+  // Holds the latest startRecognitionCycle so `speak` can resume listening
+  // after it finishes talking, without a circular useCallback dependency.
+  const startRecognitionCycleRef = useRef<() => void>(() => {});
+
+  const speak = useCallback((text: string, onDone?: () => void) => {
+    if (!window.speechSynthesis) {
+      onDone?.();
+      return;
+    }
+    // Pause the mic while IRIS talks so it doesn't hear its own voice.
+    const wasListening = shouldListenRef.current;
+    if (wasListening) {
+      speakingRef.current = true;
+      recognitionRef.current?.stop();
+    }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 1.02;
+    utter.pitch = 0.95;
+    const voice = pickVoice();
+    if (voice) utter.voice = voice;
+    const finish = () => {
+      speakingRef.current = false;
+      if (wasListening && shouldListenRef.current) startRecognitionCycleRef.current();
+      onDone?.();
+    };
+    utter.onend = finish;
+    utter.onerror = finish;
+    window.speechSynthesis.speak(utter);
+  }, []);
+
   const submitCommand = useCallback(
     (text: string) => {
       const trimmed = text.trim();
@@ -147,12 +189,16 @@ export function useVoiceCommands() {
       setBusy(true);
       if (shouldListenRef.current) applyVoiceState("processing");
       window.setTimeout(() => {
-        pushEntry("iris", respond(trimmed));
+        const reply = respond(trimmed);
+        pushEntry("iris", reply);
         setBusy(false);
-        if (shouldListenRef.current) applyVoiceState("listening");
+        if (shouldListenRef.current) applyVoiceState("speaking");
+        speak(reply, () => {
+          if (shouldListenRef.current) applyVoiceState("listening");
+        });
       }, 500 + Math.random() * 500);
     },
-    [pushEntry, applyVoiceState]
+    [pushEntry, applyVoiceState, speak]
   );
 
   const startRecognitionCycle = useCallback(() => {
@@ -197,7 +243,7 @@ export function useVoiceCommands() {
     };
 
     recognition.onend = () => {
-      if (shouldListenRef.current) {
+      if (shouldListenRef.current && !speakingRef.current) {
         window.setTimeout(() => startRecognitionCycle(), 250);
       }
     };
@@ -217,6 +263,8 @@ export function useVoiceCommands() {
       // recognition already running — the existing cycle will continue
     }
   }, [submitCommand, applyVoiceState]);
+
+  startRecognitionCycleRef.current = startRecognitionCycle;
 
   const startAudioMeter = useCallback(async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -263,6 +311,7 @@ export function useVoiceCommands() {
       if (awakeTimeoutRef.current) window.clearTimeout(awakeTimeoutRef.current);
       recognitionRef.current?.stop();
       stopAudioMeter();
+      window.speechSynthesis?.cancel();
       applyVoiceState("disabled");
       return;
     }
@@ -288,6 +337,7 @@ export function useVoiceCommands() {
       if (awakeTimeoutRef.current) window.clearTimeout(awakeTimeoutRef.current);
       recognitionRef.current?.stop();
       stopAudioMeter();
+      window.speechSynthesis?.cancel();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

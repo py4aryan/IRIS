@@ -24,6 +24,7 @@ const STATE_LABEL: Record<VoiceState, string> = {
   listening: "Listening",
   awake: "Awake",
   processing: "Thinking",
+  speaking: "Speaking",
 };
 
 function greetingFor(hour: number) {
@@ -57,6 +58,8 @@ export function CenterStage({
 
   const statusSentence = !supported
     ? "Voice isn't available in this browser — send a message instead."
+    : voiceState === "speaking"
+    ? "Speaking…"
     : voiceState === "awake"
     ? "Yes? Go ahead."
     : voiceState === "processing"

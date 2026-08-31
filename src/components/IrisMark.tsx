@@ -5,7 +5,7 @@ interface IrisMarkProps {
   /** 0–1 live microphone level, drives a smooth scale pulse — louder speech, bigger eye */
   level?: number;
   /** voice pipeline state, tints the mark */
-  state?: "idle" | "listening" | "awake" | "processing";
+  state?: "idle" | "listening" | "awake" | "processing" | "speaking";
 }
 
 const SPARKLES = [
@@ -46,6 +46,7 @@ const TINTS: Record<NonNullable<IrisMarkProps["state"]>, string> = {
   idle: "none",
   listening: "none",
   awake: "brightness(1.18) saturate(1.15)",
+  speaking: "brightness(1.28) saturate(1.3)",
   processing: "hue-rotate(-32deg) saturate(1.45) brightness(1.08)",
 };
 
