@@ -142,3 +142,30 @@ export async function fetchCurrentWeather(lat: number, lon: number): Promise<Raw
     code: c.weather_code,
   };
 }
+
+/** Wraps the browser's Geolocation API in a promise, for the nearest possible fix. */
+export function getBrowserLocation(): Promise<GeolocationPosition> {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error("Geolocation not supported"));
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(resolve, reject, {
+      enableHighAccuracy: false,
+      timeout: 8000,
+      maximumAge: 10 * 60 * 1000,
+    });
+  });
+}
+
+/** Turns coordinates into a real town/city name — free, no API key. */
+export async function reverseGeocode(lat: number, lon: number): Promise<{ city: string; region: string }> {
+  const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Reverse geocode failed (${res.status})`);
+  const data = await res.json();
+  const city: string = data.locality || data.city || data.principalSubdivision || "Your location";
+  const subdivisionCode: string | undefined = data.principalSubdivisionCode;
+  const region = subdivisionCode?.includes("-") ? subdivisionCode.split("-")[1] : data.countryCode ?? "";
+  return { city, region };
+}

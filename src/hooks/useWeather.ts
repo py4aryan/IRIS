@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { describeWeatherCode, fetchCurrentWeather, getUserLocation, type WeatherCategory } from "../lib/weather";
+import {
+  describeWeatherCode,
+  fetchCurrentWeather,
+  getBrowserLocation,
+  getUserLocation,
+  reverseGeocode,
+  type WeatherCategory,
+} from "../lib/weather";
 
 export interface WeatherData {
   city: string;
@@ -10,6 +17,7 @@ export interface WeatherData {
   windSpeed: number;
   category: WeatherCategory;
   label: string;
+  precise: boolean;
 }
 
 export type WeatherStatus = "loading" | "ready" | "unavailable";
@@ -22,6 +30,35 @@ export function useWeather() {
 
   const load = useCallback(async () => {
     setStatus((prev) => (prev === "ready" ? prev : "loading"));
+
+    // Prefer the nearest possible fix via real geolocation + reverse
+    // geocoding; fall back to the timezone approximation if denied,
+    // unsupported, or either request fails.
+    try {
+      const pos = await getBrowserLocation();
+      const { latitude: lat, longitude: lon } = pos.coords;
+      const [place, raw] = await Promise.all([
+        reverseGeocode(lat, lon).catch(() => null),
+        fetchCurrentWeather(lat, lon),
+      ]);
+      const desc = describeWeatherCode(raw.code);
+      setData({
+        city: place?.city ?? "Your location",
+        country: place?.region ?? "",
+        temp: raw.temp,
+        feelsLike: raw.feelsLike,
+        humidity: raw.humidity,
+        windSpeed: raw.windSpeed,
+        category: desc.category,
+        label: desc.label,
+        precise: true,
+      });
+      setStatus("ready");
+      return;
+    } catch {
+      // fall through to the timezone-based approximation below
+    }
+
     const loc = getUserLocation();
     if (!loc) {
       setStatus("unavailable");
@@ -39,6 +76,7 @@ export function useWeather() {
         windSpeed: raw.windSpeed,
         category: desc.category,
         label: desc.label,
+        precise: false,
       });
       setStatus("ready");
     } catch {

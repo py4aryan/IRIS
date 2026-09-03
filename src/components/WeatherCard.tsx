@@ -1,4 +1,4 @@
-import { Cloud, CloudFog, CloudLightning, CloudRain, CloudSnow, CloudSun, Sun } from "lucide-react";
+import { Cloud, CloudFog, CloudLightning, CloudRain, CloudSnow, CloudSun, MapPin, Sun } from "lucide-react";
 import { Card, MiniStat } from "./Card";
 import { useWeather } from "../hooks/useWeather";
 import type { WeatherCategory } from "../lib/weather";
@@ -37,8 +37,10 @@ export function WeatherCard() {
               <div className="text-3xl font-display font-semibold text-amber-glow">
                 {Math.round(data.temp)}°C
               </div>
-              <div className="text-xs text-slate-400 mt-0.5">
-                {data.city}, {data.country}
+              <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+                {data.city}
+                {data.country ? `, ${data.country}` : ""}
+                {data.precise && <MapPin size={10} className="text-cyan-glow/60" />}
               </div>
               <div className="text-xs text-slate-500">{data.label}</div>
             </div>
